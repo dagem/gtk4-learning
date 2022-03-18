@@ -7,6 +7,13 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, Gio
 
 
+class SettingsWindow(Gtk.ApplicationWindow):
+    def __init__(self):
+        Gtk.Window.__init__(self, title="Settings")
+        self.add(Gtk.Label("Settings"))
+        self.show_all()
+
+
 class MainWindow(Gtk.ApplicationWindow):
 
     def __init__(self, *args, **kwargs):
@@ -24,13 +31,18 @@ class MainWindow(Gtk.ApplicationWindow):
         about_action.connect("activate", self.on_about_clicked)
         self.add_action(about_action)
 
+        settings_action = Gio.SimpleAction.new("settings", None)
+        settings_action.connect("activate", self.open_window)
+        self.add_action(settings_action)
+
         self.toggle_theme = Gtk.Switch()
 
         self.toggle_theme.set_active(False)
         self.toggle_theme.connect("state-set", self.theme_toggle)
 
-        menu = Gio.Menu.new()              # creates a new menu
-        menu.append("About", "win.about")  # adds the "About" option to the menu
+        menu = Gio.Menu.new()                    # creates a new menu
+        menu.append("Settings", "win.settings")  # adds the "Settings" option to the menu
+        menu.append("About", "win.about")        # adds the "About" option to the menu
 
         self.popover = Gtk.PopoverMenu()   # creates a popover menu
         self.popover.set_menu_model(menu)  # sets the model of the menu to be our previously created menu
@@ -47,6 +59,9 @@ class MainWindow(Gtk.ApplicationWindow):
         self.header.pack_end(self.switch_box)
 
         self.app = self.get_application()
+
+    def open_window(self, win, param):
+        settings_window = SettingsWindow()
 
     def on_about_clicked(self, action, param):
         self.about.set_authors(["Dagem Mesfin"])                # creates a new field on the credits' page with the author's name
